@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://spsicio.github.io</id>
     <title>SP-51 C-10</title>
-    <updated>2020-03-07T12:09:03.405Z</updated>
+    <updated>2020-03-07T16:35:52.049Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://spsicio.github.io"/>
     <link rel="self" href="https://spsicio.github.io/atom.xml"/>
@@ -27,7 +27,7 @@
 <h2 id="辅助树">辅助树</h2>
 <ul>
 <li>原树中的结点与辅助树中的结点一一对应。</li>
-<li>原树中的实边：将连接的两个点加入到同一颗 <em>Splay</em> 中，要求 <em>Splay</em> 中序遍历得到的顺序为深度由小到大的顺序。（每棵 <em>Splay</em> 维护了一条实链）</li>
+<li>原树中的实边：将连接的两个点加入到同一颗以深度为关键字的 <em>Splay</em> 中。（每棵 <em>Splay</em> 维护了一条实链）</li>
 <li>原树中的虚边：将深度较深点所在 <em>Splay</em> 根结点的父节点设为深度较浅点。</li>
 </ul>
 <h2 id="常规操作">常规操作</h2>
@@ -45,7 +45,7 @@ void rotate(int x){
 }
 void splay(int x){
     static int s[MAX_N],top;
-    for(int y=x; nroot(y); y=fa[y]) s[++top]=y;
+    for(int y=s[top=1]=x; nroot(y); s[++top]=(y=fa[y]));
     while(top) push_dn(s[top--]);
     while(nroot(x)){
         int y=fa[x];
@@ -69,11 +69,11 @@ int find(int x){
 }
 void link(int x,int y){ evert(x),splay(x); fa[x]=y; }
 bool chk_link(int x,int y){ evert(x); return find(y)!=x? fa[x]=y: 0; }
-void cut(int x,int y){ split(x,y),splay(x); fa[y]=ch[x][0]=0; push_up(x); }
+void cut(int x,int y){ split(x,y),splay(x); ch[x][1]=fa[y]=0; push_up(x); }
 bool chk_cut(int x,int y){
 	evert(x);
 	if(find(y)!=x or fa[y]!=x or ch[y][0]) return 0;	
-	fa[y]=ch[x][1]=0; push_up(x); return 1;
+	ch[x][1]=fa[y]=0; push_up(x); return 1;
 }
 </code></pre>
 ]]></content>
