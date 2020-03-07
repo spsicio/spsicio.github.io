@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://spsicio.github.io</id>
     <title>SP-51 C-10</title>
-    <updated>2020-03-06T06:34:29.372Z</updated>
+    <updated>2020-03-07T12:09:03.405Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://spsicio.github.io"/>
     <link rel="self" href="https://spsicio.github.io/atom.xml"/>
@@ -10,6 +10,74 @@
     <logo>https://spsicio.github.io/images/avatar.png</logo>
     <icon>https://spsicio.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, SP-51 C-10</rights>
+    <entry>
+        <title type="html"><![CDATA[LCT]]></title>
+        <id>https://spsicio.github.io/post/template-lct/</id>
+        <link href="https://spsicio.github.io/post/template-lct/">
+        </link>
+        <updated>2020-03-07T09:51:23.000Z</updated>
+        <content type="html"><![CDATA[<blockquote>
+<p><em>Link-Cut Tree</em> 是一种基于实链剖分，支持添加与删除边，利用辅助树维护森林信息的数据结构。</p>
+</blockquote>
+<h2 id="实链剖分">实链剖分</h2>
+<ul>
+<li>对于每个结点与儿子间的边，可选取一条边作为实边，其余边为虚边。</li>
+<li>由实边组成的链为实链。</li>
+</ul>
+<h2 id="辅助树">辅助树</h2>
+<ul>
+<li>原树中的结点与辅助树中的结点一一对应。</li>
+<li>原树中的实边：将连接的两个点加入到同一颗 <em>Splay</em> 中，要求 <em>Splay</em> 中序遍历得到的顺序为深度由小到大的顺序。（每棵 <em>Splay</em> 维护了一条实链）</li>
+<li>原树中的虚边：将深度较深点所在 <em>Splay</em> 根结点的父节点设为深度较浅点。</li>
+</ul>
+<h2 id="常规操作">常规操作</h2>
+<h3 id="splay-操作"><em>Splay</em> 操作</h3>
+<p>与普通 <em>Splay</em> 写法稍有不同。</p>
+<pre><code class="language-c++">#define nroot(x) (ch[fa[x]][0]!=x and ch[fa[x][1]]!=x)
+#define isrc(x) (fa[x][1]==x)
+void push_up(int x);
+void push_dn(int x);
+void rotate(int x){
+    int y=fa[x],z=fa[y],k=isrc(x),w=ch[x][!k];
+    if(nroot(y)) ch[z][isrc(y)]=x; ch[x][!k]=y; ch[y][k]=w;
+    if(w) fa[w]=y; fa[y]=x; fa[x]=z;
+    push_up(y);
+}
+void splay(int x){
+    static int s[MAX_N],top;
+    for(int y=x; nroot(y); y=fa[y]) s[++top]=y;
+    while(top) push_dn(s[top--]);
+    while(nroot(x)){
+        int y=fa[x];
+        if(nroot(y)) rotate((isrc(x)^isrc(y))? x: y);
+        rotate(x);
+    }
+    push_up(x);
+}
+</code></pre>
+<h3 id="新操作">新操作</h3>
+<pre><code class="language-c++">int access(int x){
+    int y=0;
+    for(; x; x=fa[y=x]) splay(x),ch[x][1]=y,push_up(x);
+    return y;
+}
+void evert(int x){ push_rev(access(x)); }
+int split(int x,int y){ evert(x); return access(y); }
+int find(int x){
+    for(x=access(x); ch[x][0]; x=ch[x][0]) push_dn(x);
+    return splay(x),x; // 需要 splay 保证复杂度。
+}
+void link(int x,int y){ evert(x),splay(x); fa[x]=y; }
+bool chk_link(int x,int y){ evert(x); return find(y)!=x? fa[x]=y: 0; }
+void cut(int x,int y){ split(x,y),splay(x); fa[y]=ch[x][0]=0; push_up(x); }
+bool chk_cut(int x,int y){
+	evert(x);
+	if(find(y)!=x or fa[y]!=x or ch[y][0]) return 0;	
+	fa[y]=ch[x][1]=0; push_up(x); return 1;
+}
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[POJ 1286] Necklace of Beads]]></title>
         <id>https://spsicio.github.io/post/poj-1286-necklace-of-beads/</id>

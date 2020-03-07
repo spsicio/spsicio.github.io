@@ -2,24 +2,27 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>关于 | SP-51 C-10</title>
+<title>LCT | SP-51 C-10</title>
 <link rel="shortcut icon" href="https://spsicio.github.io/favicon.ico?v=1583582915207">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://spsicio.github.io/styles/main.css">
-<link rel="alternate" type="application/atom+xml" title="关于 | SP-51 C-10 - Atom Feed" href="https://spsicio.github.io/atom.xml">
+<link rel="alternate" type="application/atom+xml" title="LCT | SP-51 C-10 - Atom Feed" href="https://spsicio.github.io/atom.xml">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
 
 
 
     <meta name="description" content="
-欢迎来到我的小站呀，很高兴遇见你！🤝
+Link-Cut Tree 是一种基于实链剖分，支持添加与删除边，利用辅助树维护森林信息的数据结构。
 
-🏠 关于本站
-👨‍💻 博主是谁
-⛹ 兴趣爱好
-📬 联系我呀
-..." />
-    <meta name="keywords" content="" />
+实链剖分
+
+对于每个结点与儿子间的边，可选取一条边作为实边，其余边为虚边。
+由实边组成的链为实链。
+
+辅助树
+
+原树中的结点与辅助树中..." />
+    <meta name="keywords" content="动态树,算法与数据结构" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
     <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
   </head>
@@ -89,37 +92,102 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              关于
+              LCT
             </h2>
             <div class="post-info">
               <span>
-                2019-01-25
+                2020-03-07
               </span>
               <span>
-                1 min read
+                3 min read
               </span>
+              
+                <a href="https://spsicio.github.io/tag/dynamic-tree/" class="post-tag">
+                  # 动态树
+                </a>
+              
+                <a href="https://spsicio.github.io/tag/algo-ds/" class="post-tag">
+                  # 算法与数据结构
+                </a>
               
             </div>
             
             <div class="post-content-wrapper">
               <div class="post-content">
                 <blockquote>
-<p>欢迎来到我的小站呀，很高兴遇见你！🤝</p>
+<p><em>Link-Cut Tree</em> 是一种基于实链剖分，支持添加与删除边，利用辅助树维护森林信息的数据结构。</p>
 </blockquote>
-<h2 id="关于本站">🏠 关于本站</h2>
-<h2 id="博主是谁">👨‍💻 博主是谁</h2>
-<h2 id="兴趣爱好">⛹ 兴趣爱好</h2>
-<h2 id="联系我呀">📬 联系我呀</h2>
+<h2 id="实链剖分">实链剖分</h2>
+<ul>
+<li>对于每个结点与儿子间的边，可选取一条边作为实边，其余边为虚边。</li>
+<li>由实边组成的链为实链。</li>
+</ul>
+<h2 id="辅助树">辅助树</h2>
+<ul>
+<li>原树中的结点与辅助树中的结点一一对应。</li>
+<li>原树中的实边：将连接的两个点加入到同一颗 <em>Splay</em> 中，要求 <em>Splay</em> 中序遍历得到的顺序为深度由小到大的顺序。（每棵 <em>Splay</em> 维护了一条实链）</li>
+<li>原树中的虚边：将深度较深点所在 <em>Splay</em> 根结点的父节点设为深度较浅点。</li>
+</ul>
+<h2 id="常规操作">常规操作</h2>
+<h3 id="splay-操作"><em>Splay</em> 操作</h3>
+<p>与普通 <em>Splay</em> 写法稍有不同。</p>
+<pre><code class="language-c++">#define nroot(x) (ch[fa[x]][0]!=x and ch[fa[x][1]]!=x)
+#define isrc(x) (fa[x][1]==x)
+void push_up(int x);
+void push_dn(int x);
+void rotate(int x){
+    int y=fa[x],z=fa[y],k=isrc(x),w=ch[x][!k];
+    if(nroot(y)) ch[z][isrc(y)]=x; ch[x][!k]=y; ch[y][k]=w;
+    if(w) fa[w]=y; fa[y]=x; fa[x]=z;
+    push_up(y);
+}
+void splay(int x){
+    static int s[MAX_N],top;
+    for(int y=x; nroot(y); y=fa[y]) s[++top]=y;
+    while(top) push_dn(s[top--]);
+    while(nroot(x)){
+        int y=fa[x];
+        if(nroot(y)) rotate((isrc(x)^isrc(y))? x: y);
+        rotate(x);
+    }
+    push_up(x);
+}
+</code></pre>
+<h3 id="新操作">新操作</h3>
+<pre><code class="language-c++">int access(int x){
+    int y=0;
+    for(; x; x=fa[y=x]) splay(x),ch[x][1]=y,push_up(x);
+    return y;
+}
+void evert(int x){ push_rev(access(x)); }
+int split(int x,int y){ evert(x); return access(y); }
+int find(int x){
+    for(x=access(x); ch[x][0]; x=ch[x][0]) push_dn(x);
+    return splay(x),x; // 需要 splay 保证复杂度。
+}
+void link(int x,int y){ evert(x),splay(x); fa[x]=y; }
+bool chk_link(int x,int y){ evert(x); return find(y)!=x? fa[x]=y: 0; }
+void cut(int x,int y){ split(x,y),splay(x); fa[y]=ch[x][0]=0; push_up(x); }
+bool chk_cut(int x,int y){
+	evert(x);
+	if(find(y)!=x or fa[y]!=x or ch[y][0]) return 0;	
+	fa[y]=ch[x][1]=0; push_up(x); return 1;
+}
+</code></pre>
 
               </div>
               <div class="toc-container">
                 <ul class="markdownIt-TOC">
 <li>
 <ul>
-<li><a href="#%E5%85%B3%E4%BA%8E%E6%9C%AC%E7%AB%99">🏠 关于本站</a></li>
-<li><a href="#%E5%8D%9A%E4%B8%BB%E6%98%AF%E8%B0%81">👨‍💻 博主是谁</a></li>
-<li><a href="#%E5%85%B4%E8%B6%A3%E7%88%B1%E5%A5%BD">⛹ 兴趣爱好</a></li>
-<li><a href="#%E8%81%94%E7%B3%BB%E6%88%91%E5%91%80">📬 联系我呀</a></li>
+<li><a href="#%E5%AE%9E%E9%93%BE%E5%89%96%E5%88%86">实链剖分</a></li>
+<li><a href="#%E8%BE%85%E5%8A%A9%E6%A0%91">辅助树</a></li>
+<li><a href="#%E5%B8%B8%E8%A7%84%E6%93%8D%E4%BD%9C">常规操作</a>
+<ul>
+<li><a href="#splay-%E6%93%8D%E4%BD%9C"><em>Splay</em> 操作</a></li>
+<li><a href="#%E6%96%B0%E6%93%8D%E4%BD%9C">新操作</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -129,6 +197,15 @@
           </article>
         </div>
 
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://spsicio.github.io/post/poj-1286-necklace-of-beads/">
+              <h3 class="post-title">
+                [POJ 1286] Necklace of Beads
+              </h3>
+            </a>
+          </div>
         
 
         
