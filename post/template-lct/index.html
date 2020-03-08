@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>LCT | SP-51 C-10</title>
-<link rel="shortcut icon" href="https://spsicio.github.io/favicon.ico?v=1583598949152">
+<link rel="shortcut icon" href="https://spsicio.github.io/favicon.ico?v=1583678536595">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://spsicio.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="LCT | SP-51 C-10 - Atom Feed" href="https://spsicio.github.io/atom.xml">
@@ -31,7 +31,7 @@ Link-Cut Tree 是一种基于实链剖分，支持添加与删除边，利用辅
       <div class="main-content">
         <div class="site-header">
   <a href="https://spsicio.github.io">
-  <img class="avatar" src="https://spsicio.github.io/images/avatar.png?v=1583598949152" alt="">
+  <img class="avatar" src="https://spsicio.github.io/images/avatar.png?v=1583678536595" alt="">
   </a>
   <h1 class="site-title">
     SP-51 C-10
@@ -131,8 +131,11 @@ Link-Cut Tree 是一种基于实链剖分，支持添加与删除边，利用辅
 <h2 id="常规操作">常规操作</h2>
 <h3 id="splay-操作"><em>Splay</em> 操作</h3>
 <p>与普通 <em>Splay</em> 写法稍有不同。</p>
-<pre><code class="language-c++">#define nroot(x) (ch[fa[x]][0]!=x and ch[fa[x][1]]!=x)
-#define isrc(x) (fa[x][1]==x)
+<pre><code class="language-c++">#define lc(x) (ch[x][0])
+#define rc(x) (ch[x][1])
+#define isrc(x) (rc(fa[x])==x)
+#define nroot(x) (lc(fa[x])==x or rc(fa[x])==x)
+void push_rev(int x);
 void push_up(int x);
 void push_dn(int x);
 void rotate(int x){
@@ -145,33 +148,30 @@ void splay(int x){
     static int s[MAX_N],top;
     for(int y=s[top=1]=x; nroot(y); s[++top]=(y=fa[y]));
     while(top) push_dn(s[top--]);
-    while(nroot(x)){
-        int y=fa[x];
-        if(nroot(y)) rotate((isrc(x)^isrc(y))? x: y);
-        rotate(x);
-    }
+    for(int y; y=fa[x],nroot(x); rotate(x))
+        if(nroot(y)) rotate((isrc(x)^isrc(y)? x: y);
     push_up(x);
 }
 </code></pre>
 <h3 id="新操作">新操作</h3>
 <pre><code class="language-c++">int access(int x){
     int y=0;
-    for(; x; x=fa[y=x]) splay(x),ch[x][1]=y,push_up(x);
+    for(; x; x=fa[y=x]) splay(x),rc(x)=y,push_up(x);
     return y;
 }
 void evert(int x){ push_rev(access(x)); }
 int split(int x,int y){ evert(x); return access(y); }
 int find(int x){
-    for(x=access(x); ch[x][0]; x=ch[x][0]) push_dn(x);
+    for(x=access(x); lc(x); x=lc(x)) push_dn(x);
     return splay(x),x; // 需要 splay 保证复杂度。
 }
 void link(int x,int y){ evert(x),splay(x); fa[x]=y; }
 bool chk_link(int x,int y){ evert(x); return find(y)!=x? fa[x]=y: 0; }
-void cut(int x,int y){ split(x,y),splay(x); ch[x][1]=fa[y]=0; push_up(x); }
+void cut(int x,int y){ split(x,y),splay(x); rc(x)=fa[y]=0; push_up(x); }
 bool chk_cut(int x,int y){
 	evert(x);
 	if(find(y)!=x or fa[y]!=x or ch[y][0]) return 0;	
-	ch[x][1]=fa[y]=0; push_up(x); return 1;
+	rc(x)=fa[y]=0; push_up(x); return 1;
 }
 </code></pre>
 

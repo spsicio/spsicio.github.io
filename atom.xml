@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://spsicio.github.io</id>
     <title>SP-51 C-10</title>
-    <updated>2020-03-07T16:35:52.049Z</updated>
+    <updated>2020-03-08T14:42:22.195Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://spsicio.github.io"/>
     <link rel="self" href="https://spsicio.github.io/atom.xml"/>
@@ -33,8 +33,11 @@
 <h2 id="常规操作">常规操作</h2>
 <h3 id="splay-操作"><em>Splay</em> 操作</h3>
 <p>与普通 <em>Splay</em> 写法稍有不同。</p>
-<pre><code class="language-c++">#define nroot(x) (ch[fa[x]][0]!=x and ch[fa[x][1]]!=x)
-#define isrc(x) (fa[x][1]==x)
+<pre><code class="language-c++">#define lc(x) (ch[x][0])
+#define rc(x) (ch[x][1])
+#define isrc(x) (rc(fa[x])==x)
+#define nroot(x) (lc(fa[x])==x or rc(fa[x])==x)
+void push_rev(int x);
 void push_up(int x);
 void push_dn(int x);
 void rotate(int x){
@@ -47,33 +50,30 @@ void splay(int x){
     static int s[MAX_N],top;
     for(int y=s[top=1]=x; nroot(y); s[++top]=(y=fa[y]));
     while(top) push_dn(s[top--]);
-    while(nroot(x)){
-        int y=fa[x];
-        if(nroot(y)) rotate((isrc(x)^isrc(y))? x: y);
-        rotate(x);
-    }
+    for(int y; y=fa[x],nroot(x); rotate(x))
+        if(nroot(y)) rotate((isrc(x)^isrc(y)? x: y);
     push_up(x);
 }
 </code></pre>
 <h3 id="新操作">新操作</h3>
 <pre><code class="language-c++">int access(int x){
     int y=0;
-    for(; x; x=fa[y=x]) splay(x),ch[x][1]=y,push_up(x);
+    for(; x; x=fa[y=x]) splay(x),rc(x)=y,push_up(x);
     return y;
 }
 void evert(int x){ push_rev(access(x)); }
 int split(int x,int y){ evert(x); return access(y); }
 int find(int x){
-    for(x=access(x); ch[x][0]; x=ch[x][0]) push_dn(x);
+    for(x=access(x); lc(x); x=lc(x)) push_dn(x);
     return splay(x),x; // 需要 splay 保证复杂度。
 }
 void link(int x,int y){ evert(x),splay(x); fa[x]=y; }
 bool chk_link(int x,int y){ evert(x); return find(y)!=x? fa[x]=y: 0; }
-void cut(int x,int y){ split(x,y),splay(x); ch[x][1]=fa[y]=0; push_up(x); }
+void cut(int x,int y){ split(x,y),splay(x); rc(x)=fa[y]=0; push_up(x); }
 bool chk_cut(int x,int y){
 	evert(x);
 	if(find(y)!=x or fa[y]!=x or ch[y][0]) return 0;	
-	ch[x][1]=fa[y]=0; push_up(x); return 1;
+	rc(x)=fa[y]=0; push_up(x); return 1;
 }
 </code></pre>
 ]]></content>
