@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://spsicio.github.io</id>
     <title>SP-51 C-10</title>
-    <updated>2020-03-08T14:42:22.195Z</updated>
+    <updated>2020-03-11T15:51:29.641Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://spsicio.github.io"/>
     <link rel="self" href="https://spsicio.github.io/atom.xml"/>
@@ -21,18 +21,23 @@
 </blockquote>
 <h2 id="实链剖分">实链剖分</h2>
 <ul>
-<li>对于每个结点与儿子间的边，可选取一条边作为实边，其余边为虚边。</li>
-<li>由实边组成的链为实链。</li>
+<li>对于每个结点与儿子间的边，选取至多一条边作为实边，其余边为虚边。由实边组成的链叫作实链。</li>
+<li>将树剖分成若干条链，便可以通过维护序列信息实现维护树上信息。</li>
 </ul>
 <h2 id="辅助树">辅助树</h2>
 <ul>
 <li>原树中的结点与辅助树中的结点一一对应。</li>
-<li>原树中的实边：将连接的两个点加入到同一颗以深度为关键字的 <em>Splay</em> 中。（每棵 <em>Splay</em> 维护了一条实链）</li>
-<li>原树中的虚边：将深度较深点所在 <em>Splay</em> 根结点的父节点设为深度较浅点。</li>
+<li>原树中的实边：两点在同一颗以深度为关键字的 <em>Splay</em> 中。（实际上，每棵 <em>Splay</em> 维护了一条实链。）</li>
+<li>原树中的虚边：深度较深点所在 <em>Splay</em> 根结点的父节点为深度较浅点。</li>
 </ul>
-<h2 id="常规操作">常规操作</h2>
+<hr>
+<h2 id="实现">实现</h2>
 <h3 id="splay-操作"><em>Splay</em> 操作</h3>
-<p>与普通 <em>Splay</em> 写法稍有不同。</p>
+<p>与普通 <em>Splay</em> 的写法稍有不同。</p>
+<ul>
+<li><code>nroot(x)</code>　判断 x 是否为 <em>Splay</em> 的根结点。</li>
+<li><code>rotate(x)</code>　连边时需要考虑 x 的父亲节点是否为根。</li>
+</ul>
 <pre><code class="language-c++">#define lc(x) (ch[x][0])
 #define rc(x) (ch[x][1])
 #define isrc(x) (rc(fa[x])==x)
@@ -56,6 +61,14 @@ void splay(int x){
 }
 </code></pre>
 <h3 id="新操作">新操作</h3>
+<ul>
+<li><code>access(x)</code>　将 x 到根的路径放入一颗 <em>splay</em> 中进行维护，需要将 x 到根之间的边设为实边，x 到子结点间的边设为虚边。</li>
+<li><code>evert(x)</code>　将根换为 x，需要将 x 到根之间的边取反。</li>
+<li><code>split(x,y)</code>　将 x 到 y 的路径放入一颗 <em>splay</em> 中进行维护。</li>
+<li><code>find(x)</code>　返回 x 所在树的根。</li>
+<li><code>link(x,y)</code>　增加连接 x 和 y 的边。</li>
+<li><code>cut(x,y)</code>　断开连接 x 和 y 的边。</li>
+</ul>
 <pre><code class="language-c++">int access(int x){
     int y=0;
     for(; x; x=fa[y=x]) splay(x),rc(x)=y,push_up(x);
@@ -68,14 +81,22 @@ int find(int x){
     return splay(x),x; // 需要 splay 保证复杂度。
 }
 void link(int x,int y){ evert(x),splay(x); fa[x]=y; }
-bool chk_link(int x,int y){ evert(x); return find(y)!=x? fa[x]=y: 0; }
 void cut(int x,int y){ split(x,y),splay(x); rc(x)=fa[y]=0; push_up(x); }
+bool chk_link(int x,int y){ evert(x); return find(y)!=x? fa[x]=y: 0; }
 bool chk_cut(int x,int y){
 	evert(x);
 	if(find(y)!=x or fa[y]!=x or ch[y][0]) return 0;	
 	rc(x)=fa[y]=0; push_up(x); return 1;
 }
 </code></pre>
+<hr>
+<h2 id="应用">应用</h2>
+<ul>
+<li>维护树链信息　<code>split(x,y)</code> 操作可以提取出任意一条树链，给 <em>splay</em> 扩域就可以方便的维护树链信息。</li>
+<li>维护连通信息　可以结合 <strong>并查集</strong> 维护 <strong>边双连通分量</strong> 的信息。</li>
+<li>维护边权信息　由于 <em>LCT</em> 父子关系不固定，所以需要 <strong>拆边</strong> 完成。</li>
+<li>维护子树信息　需要给 <em>splay</em> 扩域维护虚子树的信息。</li>
+</ul>
 ]]></content>
     </entry>
     <entry>
@@ -161,8 +182,8 @@ int main(){
     </entry>
     <entry>
         <title type="html"><![CDATA[[PE 281] Pizza Toppings]]></title>
-        <id>https://spsicio.github.io/post/pe-128-pizza-toppings/</id>
-        <link href="https://spsicio.github.io/post/pe-128-pizza-toppings/">
+        <id>https://spsicio.github.io/post/pe-281-pizza-toppings/</id>
+        <link href="https://spsicio.github.io/post/pe-281-pizza-toppings/">
         </link>
         <updated>2020-03-05T02:57:43.000Z</updated>
         <content type="html"><![CDATA[<h2 id="problem"><a href="https://projecteuler.net/problem=281">Problem</a></h2>

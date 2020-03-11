@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>LCT | SP-51 C-10</title>
-<link rel="shortcut icon" href="https://spsicio.github.io/favicon.ico?v=1583678536595">
+<link rel="shortcut icon" href="https://spsicio.github.io/favicon.ico?v=1583941887816">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://spsicio.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="LCT | SP-51 C-10 - Atom Feed" href="https://spsicio.github.io/atom.xml">
@@ -16,12 +16,8 @@ Link-Cut Tree 是一种基于实链剖分，支持添加与删除边，利用辅
 
 实链剖分
 
-对于每个结点与儿子间的边，可选取一条边作为实边，其余边为虚边。
-由实边组成的链为实链。
-
-辅助树
-
-原树中的结点与辅助树中..." />
+对于每个结点与儿子间的边，选取至多一条边作为实边，其余边为虚边。由实边组成的链叫作实链。
+将树剖分成若干条链，便可以通过维..." />
     <meta name="keywords" content="动态树,算法与数据结构" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
     <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
@@ -31,7 +27,7 @@ Link-Cut Tree 是一种基于实链剖分，支持添加与删除边，利用辅
       <div class="main-content">
         <div class="site-header">
   <a href="https://spsicio.github.io">
-  <img class="avatar" src="https://spsicio.github.io/images/avatar.png?v=1583678536595" alt="">
+  <img class="avatar" src="https://spsicio.github.io/images/avatar.png?v=1583941887816" alt="">
   </a>
   <h1 class="site-title">
     SP-51 C-10
@@ -99,7 +95,7 @@ Link-Cut Tree 是一种基于实链剖分，支持添加与删除边，利用辅
                 2020-03-07
               </span>
               <span>
-                3 min read
+                4 min read
               </span>
               
                 <a href="https://spsicio.github.io/tag/dynamic-tree/" class="post-tag">
@@ -119,18 +115,23 @@ Link-Cut Tree 是一种基于实链剖分，支持添加与删除边，利用辅
 </blockquote>
 <h2 id="实链剖分">实链剖分</h2>
 <ul>
-<li>对于每个结点与儿子间的边，可选取一条边作为实边，其余边为虚边。</li>
-<li>由实边组成的链为实链。</li>
+<li>对于每个结点与儿子间的边，选取至多一条边作为实边，其余边为虚边。由实边组成的链叫作实链。</li>
+<li>将树剖分成若干条链，便可以通过维护序列信息实现维护树上信息。</li>
 </ul>
 <h2 id="辅助树">辅助树</h2>
 <ul>
 <li>原树中的结点与辅助树中的结点一一对应。</li>
-<li>原树中的实边：将连接的两个点加入到同一颗以深度为关键字的 <em>Splay</em> 中。（每棵 <em>Splay</em> 维护了一条实链）</li>
-<li>原树中的虚边：将深度较深点所在 <em>Splay</em> 根结点的父节点设为深度较浅点。</li>
+<li>原树中的实边：两点在同一颗以深度为关键字的 <em>Splay</em> 中。（实际上，每棵 <em>Splay</em> 维护了一条实链。）</li>
+<li>原树中的虚边：深度较深点所在 <em>Splay</em> 根结点的父节点为深度较浅点。</li>
 </ul>
-<h2 id="常规操作">常规操作</h2>
+<hr>
+<h2 id="实现">实现</h2>
 <h3 id="splay-操作"><em>Splay</em> 操作</h3>
-<p>与普通 <em>Splay</em> 写法稍有不同。</p>
+<p>与普通 <em>Splay</em> 的写法稍有不同。</p>
+<ul>
+<li><code>nroot(x)</code>　判断 x 是否为 <em>Splay</em> 的根结点。</li>
+<li><code>rotate(x)</code>　连边时需要考虑 x 的父亲节点是否为根。</li>
+</ul>
 <pre><code class="language-c++">#define lc(x) (ch[x][0])
 #define rc(x) (ch[x][1])
 #define isrc(x) (rc(fa[x])==x)
@@ -154,6 +155,14 @@ void splay(int x){
 }
 </code></pre>
 <h3 id="新操作">新操作</h3>
+<ul>
+<li><code>access(x)</code>　将 x 到根的路径放入一颗 <em>splay</em> 中进行维护，需要将 x 到根之间的边设为实边，x 到子结点间的边设为虚边。</li>
+<li><code>evert(x)</code>　将根换为 x，需要将 x 到根之间的边取反。</li>
+<li><code>split(x,y)</code>　将 x 到 y 的路径放入一颗 <em>splay</em> 中进行维护。</li>
+<li><code>find(x)</code>　返回 x 所在树的根。</li>
+<li><code>link(x,y)</code>　增加连接 x 和 y 的边。</li>
+<li><code>cut(x,y)</code>　断开连接 x 和 y 的边。</li>
+</ul>
 <pre><code class="language-c++">int access(int x){
     int y=0;
     for(; x; x=fa[y=x]) splay(x),rc(x)=y,push_up(x);
@@ -166,14 +175,22 @@ int find(int x){
     return splay(x),x; // 需要 splay 保证复杂度。
 }
 void link(int x,int y){ evert(x),splay(x); fa[x]=y; }
-bool chk_link(int x,int y){ evert(x); return find(y)!=x? fa[x]=y: 0; }
 void cut(int x,int y){ split(x,y),splay(x); rc(x)=fa[y]=0; push_up(x); }
+bool chk_link(int x,int y){ evert(x); return find(y)!=x? fa[x]=y: 0; }
 bool chk_cut(int x,int y){
 	evert(x);
 	if(find(y)!=x or fa[y]!=x or ch[y][0]) return 0;	
 	rc(x)=fa[y]=0; push_up(x); return 1;
 }
 </code></pre>
+<hr>
+<h2 id="应用">应用</h2>
+<ul>
+<li>维护树链信息　<code>split(x,y)</code> 操作可以提取出任意一条树链，给 <em>splay</em> 扩域就可以方便的维护树链信息。</li>
+<li>维护连通信息　可以结合 <strong>并查集</strong> 维护 <strong>边双连通分量</strong> 的信息。</li>
+<li>维护边权信息　由于 <em>LCT</em> 父子关系不固定，所以需要 <strong>拆边</strong> 完成。</li>
+<li>维护子树信息　需要给 <em>splay</em> 扩域维护虚子树的信息。</li>
+</ul>
 
               </div>
               <div class="toc-container">
@@ -182,12 +199,13 @@ bool chk_cut(int x,int y){
 <ul>
 <li><a href="#%E5%AE%9E%E9%93%BE%E5%89%96%E5%88%86">实链剖分</a></li>
 <li><a href="#%E8%BE%85%E5%8A%A9%E6%A0%91">辅助树</a></li>
-<li><a href="#%E5%B8%B8%E8%A7%84%E6%93%8D%E4%BD%9C">常规操作</a>
+<li><a href="#%E5%AE%9E%E7%8E%B0">实现</a>
 <ul>
 <li><a href="#splay-%E6%93%8D%E4%BD%9C"><em>Splay</em> 操作</a></li>
 <li><a href="#%E6%96%B0%E6%93%8D%E4%BD%9C">新操作</a></li>
 </ul>
 </li>
+<li><a href="#%E5%BA%94%E7%94%A8">应用</a></li>
 </ul>
 </li>
 </ul>
