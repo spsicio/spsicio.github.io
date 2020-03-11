@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://spsicio.github.io</id>
     <title>SP-51 C-10</title>
-    <updated>2020-03-11T15:51:29.641Z</updated>
+    <updated>2020-03-11T15:54:54.487Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://spsicio.github.io"/>
     <link rel="self" href="https://spsicio.github.io/atom.xml"/>
@@ -89,14 +89,6 @@ bool chk_cut(int x,int y){
 	rc(x)=fa[y]=0; push_up(x); return 1;
 }
 </code></pre>
-<hr>
-<h2 id="应用">应用</h2>
-<ul>
-<li>维护树链信息　<code>split(x,y)</code> 操作可以提取出任意一条树链，给 <em>splay</em> 扩域就可以方便的维护树链信息。</li>
-<li>维护连通信息　可以结合 <strong>并查集</strong> 维护 <strong>边双连通分量</strong> 的信息。</li>
-<li>维护边权信息　由于 <em>LCT</em> 父子关系不固定，所以需要 <strong>拆边</strong> 完成。</li>
-<li>维护子树信息　需要给 <em>splay</em> 扩域维护虚子树的信息。</li>
-</ul>
 ]]></content>
     </entry>
     <entry>

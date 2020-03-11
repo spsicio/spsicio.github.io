@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>LCT | SP-51 C-10</title>
-<link rel="shortcut icon" href="https://spsicio.github.io/favicon.ico?v=1583941887816">
+<link rel="shortcut icon" href="https://spsicio.github.io/favicon.ico?v=1583942091898">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://spsicio.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="LCT | SP-51 C-10 - Atom Feed" href="https://spsicio.github.io/atom.xml">
@@ -27,7 +27,7 @@ Link-Cut Tree 是一种基于实链剖分，支持添加与删除边，利用辅
       <div class="main-content">
         <div class="site-header">
   <a href="https://spsicio.github.io">
-  <img class="avatar" src="https://spsicio.github.io/images/avatar.png?v=1583941887816" alt="">
+  <img class="avatar" src="https://spsicio.github.io/images/avatar.png?v=1583942091898" alt="">
   </a>
   <h1 class="site-title">
     SP-51 C-10
@@ -183,14 +183,6 @@ bool chk_cut(int x,int y){
 	rc(x)=fa[y]=0; push_up(x); return 1;
 }
 </code></pre>
-<hr>
-<h2 id="应用">应用</h2>
-<ul>
-<li>维护树链信息　<code>split(x,y)</code> 操作可以提取出任意一条树链，给 <em>splay</em> 扩域就可以方便的维护树链信息。</li>
-<li>维护连通信息　可以结合 <strong>并查集</strong> 维护 <strong>边双连通分量</strong> 的信息。</li>
-<li>维护边权信息　由于 <em>LCT</em> 父子关系不固定，所以需要 <strong>拆边</strong> 完成。</li>
-<li>维护子树信息　需要给 <em>splay</em> 扩域维护虚子树的信息。</li>
-</ul>
 
               </div>
               <div class="toc-container">
@@ -205,7 +197,6 @@ bool chk_cut(int x,int y){
 <li><a href="#%E6%96%B0%E6%93%8D%E4%BD%9C">新操作</a></li>
 </ul>
 </li>
-<li><a href="#%E5%BA%94%E7%94%A8">应用</a></li>
 </ul>
 </li>
 </ul>
